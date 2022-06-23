@@ -85,7 +85,7 @@ class ChessBoard {
                         }
 
                         //Adding Class of selected Chess Piece so it is shown
-                        this.#grabbedPiece.piece.classList.toggle("selectedChessPiece");
+                        this.#grabbedPiece.piece.classList.add("selectedChessPiece");
                         this.#isPieceGrabbed=true;
 
                         //Remove
@@ -105,18 +105,16 @@ class ChessBoard {
                         //Ungrabbing the Piece
                         this.#isPieceGrabbed=false;
 
-                        //For testing Conosole Remove
-                        //console.log("Putting back");
-
                         //Changing the style for piece
-                        this.#grabbedPiece.piece.classList.toggle("selectedChessPiece");
-
-                        //Emptying the Grabbed Piece Temporary Object
-                        this.#grabbedPiece = new ChessPiece(null,-1,-1);
+                        this.#grabbedPiece.piece.classList.remove("selectedChessPiece");
 
                         //Setting the data-sets
                         this.#Array2DOfChess[i][j].dataset.color = this.#grabbedPiece.color;
                         this.#Array2DOfChess[i][j].dataset.Piece = this.#grabbedPiece.type;
+
+                        //Emptying the Grabbed Piece Temporary Object
+                        this.#grabbedPiece = new ChessPiece(null,-1,-1);
+
                     }
 
                     // IF player Moves the piece
@@ -124,14 +122,13 @@ class ChessBoard {
                     {
                         if(this.#grabbedPiece.color != this.#Array2DOfChess[i][j].dataset.color)
                         {
-                            console.log("Cannot Place in same Color")
-                        }
-
+                        
                         //This is Just for Testing the Utiltity Functions
                         let pos= new Cordiante(i,j);
-
                         this.#isPieceGrabbed=false;
-                        console.log(this.#isVerticalClear(pos));
+                        console.log(this.#isDiogonalClear(pos));
+                        //-------------------------------------
+
                        // Processing over here
                         this.#Array2DOfChess[i][j].innerHTML=this.#grabbedPiece.piece.innerHTML;
                         this.#grabbedPiece.piece.innerHTML="";
@@ -144,12 +141,13 @@ class ChessBoard {
                         this.#Array2DOfChess[i][j].dataset.Piece = this.#grabbedPiece.type;
 
 
-                        //Emptying the Temporary Grebbed Piece
+                        //Emptying the Temporary Grabbed Piece
                         this.#grabbedPiece = new ChessPiece(null,-1,-1, 'none', 'none');
                         this.#turn++;
                         if(this.#turn>=2) this.#turn= this.#turn %2;
                         
-                    }
+                        }
+                }
                 }
                 )
 
@@ -158,6 +156,13 @@ class ChessBoard {
         }
     }
 
+
+    //Utitility Functions
+
+
+    
+    
+    //Checking Paths Diagonal horizontal vertical
     #isHorizontalPath= (pos)=>
     {
        return this.#grabbedPiece.position.r==pos.r;
@@ -196,6 +201,8 @@ class ChessBoard {
 
         return true;
     }
+
+
     #isVerticalClear=(pos)=>
     {
         let chotiR;
@@ -219,6 +226,54 @@ class ChessBoard {
 
         return true;
     }
+    #isDiogonalClear=(pos)=>
+    {
+        let row = this.#grabbedPiece.position.r;
+        let column = this.#grabbedPiece.position.c;
+        let AbsDiff= Math.abs(this.#grabbedPiece.position.c-pos.c);
+
+        if(this.#grabbedPiece.position.c<pos.c && this.#grabbedPiece.position.r<pos.r)
+        {
+            for (let l = 1; l <AbsDiff; l++) {
+            
+                if(this.#Array2DOfChess[row+l][column+l].dataset.color != 'none') return false;
+            }
+            return true; 
+        }
+        
+        else if(this.#grabbedPiece.position.c>pos.c && this.#grabbedPiece.position.r>pos.r)
+        {
+        for (let l = 1; l <AbsDiff; l++) {
+            
+            
+            if(this.#Array2DOfChess[row-l][column-l].dataset.color != 'none') return false;
+        }
+        return true; 
+        }
+
+        else if(this.#grabbedPiece.position.c<pos.c && this.#grabbedPiece.position.r>pos.r)
+        {
+        for (let l = 1; l <AbsDiff; l++) {
+            
+            if(this.#Array2DOfChess[row-l][column+l].dataset.color != 'none') return false;
+        }
+        return true; 
+        }
+
+        else
+        {
+        for (let l = 1; l <AbsDiff; l++) {
+            
+            // console.log(this.#Array2DOfChess[row-l][column+l]);
+            if(this.#Array2DOfChess[row+l][column-l].dataset.color != 'none') return false;
+        }
+        return true; 
+        }
+
+        return true; 
+    }
+
+
 }
 
 

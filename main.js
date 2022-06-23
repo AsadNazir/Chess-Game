@@ -73,7 +73,7 @@ class ChessBoard {
                         
                         if(this.#Array2DOfChess[i][j].dataset.color !='none' && this.#Array2DOfChess[i][j].dataset.color == this.#turnArr[this.#turn])
                         {
-                            this.#grabbedPiece = new ChessPiece(this.#Array2DOfChess[i][j], i ,j,this.#Array2DOfChess[i][j].dataset.color,this.#Array2DOfChess[i][j].dataset.Piece); 
+                            this.#grabbedPiece = new ChessPiece(this.#Array2DOfChess[i][j], i ,j,this.#Array2DOfChess[i][j].dataset.color,this.#Array2DOfChess[i][j].dataset.piece); 
 
                             for (let k = 0; k < 8; k++) {
                             for (let l = 0; l < 8; l++) {
@@ -88,13 +88,9 @@ class ChessBoard {
                         this.#grabbedPiece.piece.classList.add("selectedChessPiece");
                         this.#isPieceGrabbed=true;
 
-                        //Remove
-                        // console.log(1);
-                        // console.log(this.#Array2DOfChess[i][j].dataset.color);
-
                         //Changing the Data-sets For Emptying the cell;
                         this.#Array2DOfChess[i][j].dataset.color ='none';
-                        this.#Array2DOfChess[i][j].dataset.Piece ='none';
+                        this.#Array2DOfChess[i][j].dataset.piece ='none';
 
                     }
                     }
@@ -110,7 +106,7 @@ class ChessBoard {
 
                         //Setting the data-sets
                         this.#Array2DOfChess[i][j].dataset.color = this.#grabbedPiece.color;
-                        this.#Array2DOfChess[i][j].dataset.Piece = this.#grabbedPiece.type;
+                        this.#Array2DOfChess[i][j].dataset.piece = this.#grabbedPiece.type;
 
                         //Emptying the Grabbed Piece Temporary Object
                         this.#grabbedPiece = new ChessPiece(null,-1,-1);
@@ -120,32 +116,47 @@ class ChessBoard {
                     // IF player Moves the piece
                     else
                     {
+                        //console.log((this.#grabbedPiece), "Above");
                         if(this.#grabbedPiece.color != this.#Array2DOfChess[i][j].dataset.color)
                         {
-                        
-                        //This is Just for Testing the Utiltity Functions
-                        let pos= new Cordiante(i,j);
-                        this.#isPieceGrabbed=false;
-                        console.log(this.#isDiogonalClear(pos));
-                        //-------------------------------------
+                            let pos= new Cordiante(i,j);
 
-                       // Processing over here
-                        this.#Array2DOfChess[i][j].innerHTML=this.#grabbedPiece.piece.innerHTML;
-                        this.#grabbedPiece.piece.innerHTML="";
-                        
-                        //Unselecting the Grabbed Piece
-                        this.#grabbedPiece.piece.classList.toggle("selectedChessPiece");
+                            if(this.#grabbedPiece.type=="Queen" && this.#queenMove(pos))
+                            {
 
-                        //Setting the data Sets of the Destination Place
-                        this.#Array2DOfChess[i][j].dataset.color = this.#grabbedPiece.color;
-                        this.#Array2DOfChess[i][j].dataset.Piece = this.#grabbedPiece.type;
+                                console.log(this.#queenMove(pos));
+                               this.placePiece(i,j);
+                            }
 
+                            else if(this.#grabbedPiece.type=="Rook" && this.#rookMove(pos))
+                            {
+                                console.log("here2");
+                               this.placePiece(i,j);
+                            }
 
-                        //Emptying the Temporary Grabbed Piece
-                        this.#grabbedPiece = new ChessPiece(null,-1,-1, 'none', 'none');
-                        this.#turn++;
-                        if(this.#turn>=2) this.#turn= this.#turn %2;
-                        
+                            else if(this.#grabbedPiece.type=="Bishop" && this.#bishopMove(pos))
+                            {
+                                console.log("here3");
+                               this.placePiece(i,j);
+                            }
+
+                            else if(this.#grabbedPiece.type=="Knight" && this.#knightMove(pos))
+                            {
+                                console.log("here3");
+                               this.placePiece(i,j);
+                            }
+                            else if(this.#grabbedPiece.type=="King" && this.#kingMove(pos))
+                            {
+                                console.log("here3");
+                               this.placePiece(i,j);
+                            }
+                           
+                            else if(this.#grabbedPiece.type=="Pawn")
+                            {
+                                console.log("here4");
+                                this.placePiece(i,j);
+                            }
+                            
                         }
                 }
                 }
@@ -158,9 +169,27 @@ class ChessBoard {
 
 
     //Utitility Functions
+    placePiece =(i,j)=>
+    {
 
+        // Processing over here
+        this.#Array2DOfChess[i][j].innerHTML=this.#grabbedPiece.piece.innerHTML;
+        this.#grabbedPiece.piece.innerHTML="";
+        
+        //Unselecting the Grabbed Piece
+        this.#grabbedPiece.piece.classList.toggle("selectedChessPiece");
 
-    
+        //Setting the data Sets of the Destination Place
+        this.#Array2DOfChess[i][j].dataset.color = this.#grabbedPiece.color;
+        this.#Array2DOfChess[i][j].dataset.piece = this.#grabbedPiece.type;
+
+        this.#isPieceGrabbed=false;
+
+        //Emptying the Temporary Grabbed Piece
+        this.#grabbedPiece = new ChessPiece(null,-1,-1, 'none', 'none');
+        this.#turn++;
+        if(this.#turn>=2) this.#turn= this.#turn %2;
+    }
     
     //Checking Paths Diagonal horizontal vertical
     #isHorizontalPath= (pos)=>
@@ -175,7 +204,7 @@ class ChessBoard {
 
     #isDiognal(pos)
     {
-        return (Math.abs(this.#grabbedPiece.position.c-pos.c) == Math.abs(this.#grabbedPiece.position.c-pos.c) );
+        return (Math.abs(this.#grabbedPiece.position.c-pos.c) == Math.abs(this.#grabbedPiece.position.r-pos.r) );
     }
 
     #isHorizontalClear(pos)
@@ -274,16 +303,44 @@ class ChessBoard {
     }
 
 
+    // Moves over here
+    #rookMove=(pos)=>
+    {
+        return ((this.#isHorizontalPath(pos) && this.#isHorizontalClear(pos)) || (this.#isVerticalPath(pos) && this.#isVerticalClear(pos))); 
+    }
+
+    #bishopMove=(pos)=>
+    {
+        return (this.#isDiognal(pos) && this.#isDiogonalClear(pos));
+    }
+
+    #queenMove = (pos)=>
+    {
+        return (this.#rookMove(pos) || this.#bishopMove(pos));
+    }
+    #knightMove = (pos)=>
+    {
+        let Dr=Math.abs(this.#grabbedPiece.position.r-pos.r);
+        let Dc=Math.abs(this.#grabbedPiece.position.c-pos.c);
+        return ((Dr==2 && Dc==1) || (Dc==2 && Dr==1));
+    }
+    #kingMove = (pos)=>
+    {
+        let Dr=Math.abs(this.#grabbedPiece.position.r-pos.r);
+        let Dc=Math.abs(this.#grabbedPiece.position.c-pos.c);
+        return ((Dr==1 || Dr==0) && (Dc==0 || Dc==1));
+    }
+
 }
 
 
 //Chess Piece Constructor
-function ChessPiece(piece,x,y,color,type)
+function ChessPiece(piece,x,y,color,Type)
 {
     this.piece=piece;
     this.position = new Cordiante(x,y);
     this.color=color;
-    this.type=type;
+    this.type=Type;
 }
 
 //Coordinate X and Y Constructor

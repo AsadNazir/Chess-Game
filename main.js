@@ -1,3 +1,5 @@
+
+//Chess Class
 class ChessBoard {
 
     //Private Data Members
@@ -7,6 +9,7 @@ class ChessBoard {
     #isPieceGrabbed;
     #turnArr;
     #turn;
+
     constructor() {
         this.#boxes = document.querySelectorAll(".chessBoxes");
         this.#Array2DOfChess=[];
@@ -17,6 +20,7 @@ class ChessBoard {
         this.#turn=0;
     }
 
+    //Just to fill the board
     FillTheBoard = () => {
         let turn = 0;
         for (let i = 0; i < this.#boxes.length; i++) {
@@ -47,9 +51,11 @@ class ChessBoard {
 
     }
 
+    //Main Grabbing the piece Logic over here
     grabThePiece =()=>
     {
         
+        //Intializing the Grabbed Piece by garbage
         this.#grabbedPiece= new ChessPiece(null,-1,-1,'none', 'none');
 
         //Outer For loops for just adding event listners
@@ -116,6 +122,12 @@ class ChessBoard {
                     // IF player Moves the piece
                     else
                     {
+                        if(this.#grabbedPiece.color != this.#Array2DOfChess[i][j].dataset.color)
+                        {
+                            console.log("Cannot Place in same Color")
+                        }
+
+                        //This is Just for Testing the Utiltity Functions
                         let pos= new Cordiante(i,j);
 
                         this.#isPieceGrabbed=false;
@@ -134,13 +146,8 @@ class ChessBoard {
 
                         //Emptying the Temporary Grebbed Piece
                         this.#grabbedPiece = new ChessPiece(null,-1,-1, 'none', 'none');
-
                         this.#turn++;
-
                         if(this.#turn>=2) this.#turn= this.#turn %2;
-
-                       // console.log(this.#turn);
-
                         
                     }
                 }
@@ -214,6 +221,8 @@ class ChessBoard {
     }
 }
 
+
+//Chess Piece Constructor
 function ChessPiece(piece,x,y,color,type)
 {
     this.piece=piece;
@@ -222,6 +231,7 @@ function ChessPiece(piece,x,y,color,type)
     this.type=type;
 }
 
+//Coordinate X and Y Constructor
 function Cordiante(y,x)
 {
     this.r=y;
@@ -229,4 +239,5 @@ function Cordiante(y,x)
 
 }
 
+//Starting the new Game 
 newGame = new ChessBoard();

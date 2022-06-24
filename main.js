@@ -123,37 +123,30 @@ class ChessBoard {
 
                             if(this.#grabbedPiece.type=="Queen" && this.#queenMove(pos))
                             {
-
-                                console.log(this.#queenMove(pos));
                                this.placePiece(i,j);
                             }
 
                             else if(this.#grabbedPiece.type=="Rook" && this.#rookMove(pos))
                             {
-                                console.log("here2");
                                this.placePiece(i,j);
                             }
 
                             else if(this.#grabbedPiece.type=="Bishop" && this.#bishopMove(pos))
                             {
-                                console.log("here3");
                                this.placePiece(i,j);
                             }
 
                             else if(this.#grabbedPiece.type=="Knight" && this.#knightMove(pos))
                             {
-                                console.log("here3");
                                this.placePiece(i,j);
                             }
                             else if(this.#grabbedPiece.type=="King" && this.#kingMove(pos))
                             {
-                                console.log("here3");
                                this.placePiece(i,j);
                             }
                            
                             else if(this.#grabbedPiece.type=="Pawn" && this.#pawnMove(pos))
-                            {
-                                
+                            {                         
                                 this.placePiece(i,j);
                             }
                             
@@ -342,22 +335,22 @@ class ChessBoard {
             {
                 if(this.#grabbedPiece.position.c==pos.c)
                 {
-                    return((Math.abs(this.#grabbedPiece.position.r-pos.r) ==1 ||Math.abs(this.#grabbedPiece.position.r-pos.r) ==2))
+                    return((this.#grabbedPiece.position.r-pos.r ==1 ||this.#grabbedPiece.position.r-pos.r ==2))
                 }
                 else
                 {
-                    return((Math.abs(this.#grabbedPiece.position.r-pos.r) ==1 ||Math.abs(this.#grabbedPiece.position.r-pos.r) ==2) && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='Black');
+                    return((this.#grabbedPiece.position.r-pos.r ==1 ||this.#grabbedPiece.position.r-pos.r ==2) && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='Black');
                 }
             }
             else
             {
                 if(this.#grabbedPiece.position.c==pos.c)
                 {
-                    return((Math.abs(this.#grabbedPiece.position.r-pos.r) ==1));
+                    return((this.#grabbedPiece.position.r-pos.r ==1));
                 }
                 else
                 {
-                    return((Math.abs(this.#grabbedPiece.position.r-pos.r) ==1 && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='Black'));
+                    return((this.#grabbedPiece.position.r-pos.r ==1 && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='Black'));
                 }
             }
         }
@@ -368,11 +361,11 @@ class ChessBoard {
             if(this.#grabbedPiece.position.r==1)
             {   if(this.#grabbedPiece.position.c==pos.c)
                 {
-                    return((Math.abs(this.#grabbedPiece.position.r-pos.r) ==1 ||Math.abs(this.#grabbedPiece.position.r-pos.r) ==2))
+                    return((this.#grabbedPiece.position.r-pos.r ==-1 ||this.#grabbedPiece.position.r-pos.r ==-2))
                 }
                 else
                 {
-                    return((Math.abs(this.#grabbedPiece.position.r-pos.r) ==1 ||Math.abs(this.#grabbedPiece.position.r-pos.r) ==2) && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='White');
+                    return((this.#grabbedPiece.position.r-pos.r ==-1 ||this.#grabbedPiece.position.r-pos.r ==-2) && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='White');
                 }
             }
 
@@ -380,11 +373,11 @@ class ChessBoard {
             {
                 if(this.#grabbedPiece.position.c==pos.c)
                 {
-                    return((Math.abs(this.#grabbedPiece.position.r-pos.r) ==1));
+                    return((this.#grabbedPiece.position.r-pos.r ==-1));
                 }
                 else
                 {
-                    return((Math.abs(this.#grabbedPiece.position.r-pos.r) ==1 && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='White'));
+                    return((this.#grabbedPiece.position.r-pos.r ==-1 && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='White'));
                 }
             }
         }

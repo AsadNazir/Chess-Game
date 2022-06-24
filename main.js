@@ -151,9 +151,9 @@ class ChessBoard {
                                this.placePiece(i,j);
                             }
                            
-                            else if(this.#grabbedPiece.type=="Pawn")
+                            else if(this.#grabbedPiece.type=="Pawn" && this.#pawnMove(pos))
                             {
-                                console.log("here4");
+                                
                                 this.placePiece(i,j);
                             }
                             
@@ -189,6 +189,8 @@ class ChessBoard {
         this.#grabbedPiece = new ChessPiece(null,-1,-1, 'none', 'none');
         this.#turn++;
         if(this.#turn>=2) this.#turn= this.#turn %2;
+        let turnHeading= document.querySelector(".heading >span");
+        turnHeading.textContent=this.#turnArr[this.#turn];
     }
     
     //Checking Paths Diagonal horizontal vertical
@@ -329,6 +331,64 @@ class ChessBoard {
         let Dr=Math.abs(this.#grabbedPiece.position.r-pos.r);
         let Dc=Math.abs(this.#grabbedPiece.position.c-pos.c);
         return ((Dr==1 || Dr==0) && (Dc==0 || Dc==1));
+    }
+    #pawnMove =(pos)=>
+    {
+        // For white pawns
+        if(this.#grabbedPiece.color=="White" )
+        {
+            
+            if(this.#grabbedPiece.position.r==6)
+            {
+                if(this.#grabbedPiece.position.c==pos.c)
+                {
+                    return((Math.abs(this.#grabbedPiece.position.r-pos.r) ==1 ||Math.abs(this.#grabbedPiece.position.r-pos.r) ==2))
+                }
+                else
+                {
+                    return((Math.abs(this.#grabbedPiece.position.r-pos.r) ==1 ||Math.abs(this.#grabbedPiece.position.r-pos.r) ==2) && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='Black');
+                }
+            }
+            else
+            {
+                if(this.#grabbedPiece.position.c==pos.c)
+                {
+                    return((Math.abs(this.#grabbedPiece.position.r-pos.r) ==1));
+                }
+                else
+                {
+                    return((Math.abs(this.#grabbedPiece.position.r-pos.r) ==1 && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='Black'));
+                }
+            }
+        }
+
+        // For Black Ones
+        else
+        {
+            if(this.#grabbedPiece.position.r==1)
+            {   if(this.#grabbedPiece.position.c==pos.c)
+                {
+                    return((Math.abs(this.#grabbedPiece.position.r-pos.r) ==1 ||Math.abs(this.#grabbedPiece.position.r-pos.r) ==2))
+                }
+                else
+                {
+                    return((Math.abs(this.#grabbedPiece.position.r-pos.r) ==1 ||Math.abs(this.#grabbedPiece.position.r-pos.r) ==2) && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='White');
+                }
+            }
+
+            else
+            {
+                if(this.#grabbedPiece.position.c==pos.c)
+                {
+                    return((Math.abs(this.#grabbedPiece.position.r-pos.r) ==1));
+                }
+                else
+                {
+                    return((Math.abs(this.#grabbedPiece.position.r-pos.r) ==1 && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='White'));
+                }
+            }
+        }
+
     }
 
 }

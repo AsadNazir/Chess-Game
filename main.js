@@ -506,8 +506,7 @@ class ChessBoard {
     }
 }
 
-
-//Chess Piece Constructor
+// Chess Piece
 function ChessPiece(piece,x,y,color,Type)
 {
     this.piece=piece;
@@ -515,6 +514,7 @@ function ChessPiece(piece,x,y,color,Type)
     this.color=color;
     this.type=Type;
 }
+
 
 //Coordinate X and Y Constructor
 function Cordiante(y,x)

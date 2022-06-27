@@ -481,6 +481,7 @@ class ChessBoard {
 
 
     // finding the king
+    console.log(this.#Array2DOfChess,"checkby");
       for (let l = 0; l < 8; l++) {
         for (let m = 0; m < 8; m++) {
             
@@ -493,7 +494,7 @@ class ChessBoard {
         }
         
       }
-
+      console.log(pos,"checkby");
       //Checking the King IS checked or not
       for (let l = 0; l < 8; l++) {
         for (let m = 0; m < 8; m++) {
@@ -521,30 +522,60 @@ class ChessBoard {
 
     #selfCheck=(pos)=>
     {
-        let tempGrabPiece= new ChessPiece (this.#grabbedPiece.piece,this.#grabbedPiece.position.r,this.#grabbedPiece.position.c,this.#grabbedPiece.color, this.#grabbedPiece.type);
-        console.log(this.#grabbedPiece);
-        this.#temp2D = [];
 
-        for (var i = 0; i < 8; i++)
-            this.#temp2D[i] = this.#Array2DOfChess[i].slice();
+        this.#temp2D=[];
+       
+
+        let tempArr=[];
+        for (let i = 0; i < 8; i++) {
+            
+          for (let j = 0; j < 8; j++) {
+            
+            let tempPiece = new ChessPiece(this.#Array2DOfChess[i][j].piece, i ,j,this.#Array2DOfChess[i][j].color,this.#Array2DOfChess[i][j].type);
+            tempArr.push(tempPiece);
+          }
+
+          this.#temp2D.push(tempArr);
+
+          tempArr=[];
+        }
 
         
-        this.#turn = (this.#turn+1)%2;
+         this.#turn = (this.#turn+1)%2;
+
+         console.log(this.#turnArr[this.#turn]);
         
         //
-        this.#Array2DOfChess[pos.r][pos.c]=this.#grabbedPiece;
+        this.#Array2DOfChess[pos.r][pos.c].position=pos;
+        this.#Array2DOfChess[pos.r][pos.c].type=this.#grabbedPiece.type;
+        this.#Array2DOfChess[pos.r][pos.c].piece=this.#grabbedPiece.piece;
+        this.#Array2DOfChess[pos.r][pos.c].color=this.#grabbedPiece.color;
+
+        this.#Array2DOfChess[this.#grabbedPiece.position.r][this.#grabbedPiece.position.c].type="none";
+        //this.#Array2DOfChess[this.#grabbedPiece.position.r][this.#grabbedPiece.position.r].piece="none";
+        this.#Array2DOfChess[this.#grabbedPiece.position.r][this.#grabbedPiece.position.c].color="none";
+        console.log(this.#Array2DOfChess[pos.r][pos.c]);
+        console.log(pos,"Destination\n");
         let check=this.#checkBy();
+
         this.#turn = (this.#turn+1)%2;
 
+        this.#Array2DOfChess=[];
         // 
-        for (var i = 0; i < 8; i++)
-            this.#Array2DOfChess[i] = this.#temp2D[i].slice();
+         tempArr=[];
+        for (let i = 0; i < 8; i++) {
+            
+          for (let j = 0; j < 8; j++) {
+            
+            let tempPiece = new ChessPiece(this.#temp2D[i][j].piece, i ,j,this.#temp2D[i][j].color,this.#temp2D[i][j].type);
+            tempArr.push(tempPiece);
+          }
 
-        
-      this.#grabbedPiece.piece=tempGrabPiece.piece,
-      this.#grabbedPiece.position=tempGrabPiece.position,
-      this.#grabbedPiece.color=tempGrabPiece.color, 
-      this.#grabbedPiece.type=tempGrabPiece.type;
+          this.#Array2DOfChess.push(tempArr);
+
+          tempArr=[];
+        }
+
         return check;
     }
 }

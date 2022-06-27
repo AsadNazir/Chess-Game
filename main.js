@@ -9,7 +9,7 @@ class ChessBoard {
     #isPieceGrabbed;
     #turnArr;
     #turn;
-
+    #temp2D
     constructor() {
         this.#boxes = document.querySelectorAll(".chessBoxes");
         this.#Array2DOfChess=[];
@@ -19,12 +19,14 @@ class ChessBoard {
         this.#turnArr=["White", "Black"];
         this.#turn=0;
 
-        this.#selfCheck();
+    
     }
 
     //Just to fill the board
     FillTheBoard = () => {
         let turn = 0;
+
+        //Color The boxes
         for (let i = 0; i < this.#boxes.length; i++) {
 
             let id = ['lightBlue', 'darkBlue']
@@ -39,18 +41,19 @@ class ChessBoard {
 
         // This is to fill the 2D ARray of Chess
         let tempArr=[];
-        for (let i = 0; i < this.#boxes.length; i++) {
+        for (let i = 0; i < 8; i++) {
             
-            if(i%8==0 && i!=0)
-            {
-                this.#Array2DOfChess.push(tempArr);
-                tempArr=[];
-            }
-            tempArr.push(this.#boxes[i]);
+          for (let j = 0; j < 8; j++) {
+            
+            let tempPiece = new ChessPiece(this.#boxes[i*8 +j], i ,j,this.#boxes[i*8 +j].dataset.color,this.#boxes[i*8 +j].dataset.piece);
+              tempArr.push(tempPiece);
+          }
 
+          this.#Array2DOfChess.push(tempArr);
+
+          tempArr=[];
         }
-        this.#Array2DOfChess.push(tempArr);
-
+       
     }
 
     //Main Grabbing the piece Logic over here
@@ -66,22 +69,22 @@ class ChessBoard {
            for (let j = 0; j < 8; j++) 
            {
             
-               this.#Array2DOfChess[i][j].addEventListener("click",()=>
+               this.#Array2DOfChess[i][j].piece.addEventListener("click",()=>
                {
 
                 //If the Piece is not Grabbed then only it will grab it
                    if(this.#isPieceGrabbed==false)
                       {
                         
-                        if(this.#Array2DOfChess[i][j].dataset.color !='none' && this.#Array2DOfChess[i][j].dataset.color == this.#turnArr[this.#turn])
+                        if(this.#Array2DOfChess[i][j].piece.dataset.color !='none' && this.#Array2DOfChess[i][j].color == this.#turnArr[this.#turn])
                         {
-                            this.#grabbedPiece = new ChessPiece(this.#Array2DOfChess[i][j], i ,j,this.#Array2DOfChess[i][j].dataset.color,this.#Array2DOfChess[i][j].dataset.piece); 
+                            this.#grabbedPiece = new ChessPiece(this.#Array2DOfChess[i][j].piece, i ,j,this.#Array2DOfChess[i][j].color,this.#Array2DOfChess[i][j].type); 
 
                             for (let k = 0; k < 8; k++) {
                             for (let l = 0; l < 8; l++) {
                             
                              if(k==i && l==j) continue;
-                            this.#Array2DOfChess[k][l].classList.remove("selectedChessPiece");
+                            this.#Array2DOfChess[k][l].piece.classList.remove("selectedChessPiece");
                             }
                             
                         }
@@ -94,15 +97,13 @@ class ChessBoard {
                         this.#grabbedPiece.piece.classList.add("selectedChessPiece");
                         this.#isPieceGrabbed=true;
 
-                        //Changing the Data-sets For Emptying the cell;
-                        this.#Array2DOfChess[i][j].dataset.color ='none';
-                        this.#Array2DOfChess[i][j].dataset.piece ='none';
+                        
 
                     }
                     }
 
                     //If a player decides to place the piece back
-                    else if(this.#grabbedPiece.piece== this.#Array2DOfChess[i][j])
+                    else if(this.#grabbedPiece.piece== this.#Array2DOfChess[i][j].piece)
                     {   
                         //Ungrabbing the Piece
                         this.#isPieceGrabbed=false;
@@ -111,8 +112,8 @@ class ChessBoard {
                         this.#grabbedPiece.piece.classList.remove("selectedChessPiece");
 
                         //Setting the data-sets
-                        this.#Array2DOfChess[i][j].dataset.color = this.#grabbedPiece.color;
-                        this.#Array2DOfChess[i][j].dataset.piece = this.#grabbedPiece.type;
+                        this.#Array2DOfChess[i][j].piece.dataset.color = this.#grabbedPiece.color;
+                        this.#Array2DOfChess[i][j].piece.dataset.piece = this.#grabbedPiece.type;
 
                         //Emptying the Grabbed Piece Temporary Object
                         this.#grabbedPiece = new ChessPiece(null,-1,-1);
@@ -125,15 +126,17 @@ class ChessBoard {
                     // IF player Moves the piece
                     else
                     {
-                        if(this.#grabbedPiece.color != this.#Array2DOfChess[i][j].dataset.color)
+                        if(this.#grabbedPiece.color != this.#Array2DOfChess[i][j].color)
                         {
+                          
                             //destination
-                           if(this.#legalMove(i,j))
+                            let pos = new Cordiante(i,j);
+                           if(this.#legalMove(i,j) && !this.#selfCheck(pos))
                            {
+                                
+                               
                                 this.#placePiece(i,j);
-
-                                console.log(this.#checkBy());
-
+                               
                                 //Emptying the Temporary Grabbed Piece
                                 this.#grabbedPiece = new ChessPiece(null,-1,-1, 'none', 'none');
                                 this.#turn++;
@@ -161,15 +164,25 @@ class ChessBoard {
     {
 
         // Processing over here
-        this.#Array2DOfChess[i][j].innerHTML=this.#grabbedPiece.piece.innerHTML;
+        this.#Array2DOfChess[i][j].piece.innerHTML=this.#grabbedPiece.piece.innerHTML;
         this.#grabbedPiece.piece.innerHTML="";
+
+        this.#grabbedPiece.piece.dataset.piece="none";
+        this.#grabbedPiece.piece.dataset.color="none";
+
+        this.#Array2DOfChess[this.#grabbedPiece.position.r][this.#grabbedPiece.position.c].color = "none";
+        this.#Array2DOfChess[this.#grabbedPiece.position.r][this.#grabbedPiece.position.c].type = "none";
+       
         
         //Unselecting the Grabbed Piece
         this.#grabbedPiece.piece.classList.toggle("selectedChessPiece");
 
         //Setting the data Sets of the Destination Place
-        this.#Array2DOfChess[i][j].dataset.color = this.#grabbedPiece.color;
-        this.#Array2DOfChess[i][j].dataset.piece = this.#grabbedPiece.type;
+        this.#Array2DOfChess[i][j].piece.dataset.color = this.#grabbedPiece.color;
+        this.#Array2DOfChess[i][j].color = this.#grabbedPiece.color;
+
+        this.#Array2DOfChess[i][j].type = this.#grabbedPiece.type;
+        this.#Array2DOfChess[i][j].piece.dataset.piece = this.#grabbedPiece.type;
 
         this.#isPieceGrabbed=false;
     }
@@ -208,7 +221,7 @@ class ChessBoard {
 
         for(let c=chotiC+1; c<bariC; c++)
         {
-            if(this.#Array2DOfChess[pos.r][c].dataset.color != 'none') return false;
+            if(this.#Array2DOfChess[pos.r][c].piece.dataset.color != 'none') return false;
         }
 
         return true;
@@ -233,7 +246,7 @@ class ChessBoard {
 
         for(let r=chotiR+1; r<bariR; r++)
         {
-            if(this.#Array2DOfChess[r][pos.c].dataset.color != 'none') return false;
+            if(this.#Array2DOfChess[r][pos.c].piece.dataset.color != 'none') return false;
         }
 
         return true;
@@ -248,7 +261,7 @@ class ChessBoard {
         {
             for (let l = 1; l <AbsDiff; l++) {
             
-                if(this.#Array2DOfChess[row+l][column+l].dataset.color != 'none') return false;
+                if(this.#Array2DOfChess[row+l][column+l].color != 'none') return false;
             }
             return true; 
         }
@@ -258,7 +271,7 @@ class ChessBoard {
         for (let l = 1; l <AbsDiff; l++) {
             
             
-            if(this.#Array2DOfChess[row-l][column-l].dataset.color != 'none') return false;
+            if(this.#Array2DOfChess[row-l][column-l].color != 'none') return false;
         }
         return true; 
         }
@@ -267,7 +280,7 @@ class ChessBoard {
         {
         for (let l = 1; l <AbsDiff; l++) {
             
-            if(this.#Array2DOfChess[row-l][column+l].dataset.color != 'none') return false;
+            if(this.#Array2DOfChess[row-l][column+l].color != 'none') return false;
         }
         return true; 
         }
@@ -276,8 +289,8 @@ class ChessBoard {
         {
         for (let l = 1; l <AbsDiff; l++) {
             
-            // console.log(this.#Array2DOfChess[row-l][column+l]);
-            if(this.#Array2DOfChess[row+l][column-l].dataset.color != 'none') return false;
+            
+            if(this.#Array2DOfChess[row+l][column-l].color != 'none') return false;
         }
         return true; 
         }
@@ -329,7 +342,7 @@ class ChessBoard {
                 {
                     if(Math.abs(this.#grabbedPiece.position.c-pos.c)==1)
                     { 
-                        return((this.#grabbedPiece.position.r-pos.r ==1) && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='Black')
+                        return((this.#grabbedPiece.position.r-pos.r ==1) && this.#Array2DOfChess[pos.r][pos.c].color=='Black')
                     }
 
                     return false;
@@ -345,7 +358,7 @@ class ChessBoard {
                 {
                     if(Math.abs(this.#grabbedPiece.position.c-pos.c)==1)
                     { 
-                        return((this.#grabbedPiece.position.r-pos.r ==1 ) && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='Black')
+                        return((this.#grabbedPiece.position.r-pos.r ==1 ) && this.#Array2DOfChess[pos.r][pos.c].color=='Black')
                     }
 
                     return false;
@@ -365,7 +378,7 @@ class ChessBoard {
                 {
                     if(Math.abs(this.#grabbedPiece.position.c-pos.c)==1)
                     { 
-                        return((this.#grabbedPiece.position.r-pos.r ==-1) && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='White')
+                        return((this.#grabbedPiece.position.r-pos.r ==-1) && this.#Array2DOfChess[pos.r][pos.c].color=='White')
                     }
 
                     return false;
@@ -382,7 +395,7 @@ class ChessBoard {
                 {
                     if(Math.abs(this.#grabbedPiece.position.c-pos.c)==1)
                     { 
-                        return((this.#grabbedPiece.position.r-pos.r ==-1) && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='White')
+                        return((this.#grabbedPiece.position.r-pos.r ==-1) && this.#Array2DOfChess[pos.r][pos.c].color=='White')
                     }
 
                     return false;
@@ -434,9 +447,9 @@ class ChessBoard {
       for (let l = 0; l < 8; l++) {
         for (let m = 0; m < 8; m++) {
             
-            if( this.#Array2DOfChess[l][m].classList.contains("highlight"))
+            if( this.#Array2DOfChess[l][m].piece.classList.contains("highlight"))
             {
-                this.#Array2DOfChess[l][m].classList.remove("highlight");
+                this.#Array2DOfChess[l][m].piece.classList.remove("highlight");
             }
             
         }
@@ -450,9 +463,9 @@ class ChessBoard {
       for (let l = 0; l < 8; l++) {
         for (let m = 0; m < 8; m++) {
             
-            if(this.#legalMove(l,m) && this.#Array2DOfChess[l][m].dataset.color != this.#turnArr[this.#turn])
+            if(this.#legalMove(l,m) && this.#Array2DOfChess[l][m].color != this.#turnArr[this.#turn])
             {
-                this.#Array2DOfChess[l][m].classList.add("highlight");
+                this.#Array2DOfChess[l][m].piece.classList.add("highlight");
             }
             
         }
@@ -462,13 +475,16 @@ class ChessBoard {
 
     #checkBy=()=>
     {
+       
         let pos;
+        let tempGrabPiece= new ChessPiece (this.#grabbedPiece.piece,this.#grabbedPiece.position.r,this.#grabbedPiece.position.c,this.#grabbedPiece.color, this.#grabbedPiece.type);
+
 
     // finding the king
       for (let l = 0; l < 8; l++) {
         for (let m = 0; m < 8; m++) {
             
-            if(this.#Array2DOfChess[l][m].dataset.color != this.#turnArr[this.#turn] && this.#Array2DOfChess[l][m].dataset.piece=="King")
+            if(this.#Array2DOfChess[l][m].color != this.#turnArr[this.#turn] && this.#Array2DOfChess[l][m].type=="King")
             {
                 pos=new Cordiante(l,m);
                 break;
@@ -478,15 +494,14 @@ class ChessBoard {
         
       }
 
-      console.log(this.#Array2DOfChess[pos.r][pos.c]);
       //Checking the King IS checked or not
       for (let l = 0; l < 8; l++) {
         for (let m = 0; m < 8; m++) {
             
-            this.#grabbedPiece = new ChessPiece(this.#Array2DOfChess[l][m], l ,m,this.#Array2DOfChess[l][m].dataset.color,this.#Array2DOfChess[l][m].dataset.piece);
+            this.#grabbedPiece = new ChessPiece(this.#Array2DOfChess[l][m].piece, l ,m,this.#Array2DOfChess[l][m].color,this.#Array2DOfChess[l][m].type);
 
-            // console.log(this.#grabbedPiece);
-            if(this.#Array2DOfChess[l][m].dataset.color==this.#turnArr[this.#turn] && this.#legalMove(pos.r, pos.c))
+           
+            if(this.#Array2DOfChess[l][m].color==this.#turnArr[this.#turn] && this.#legalMove(pos.r, pos.c))
             {
                 
                 return true;
@@ -496,13 +511,41 @@ class ChessBoard {
         
       }
 
+      this.#grabbedPiece.piece=tempGrabPiece.piece,
+      this.#grabbedPiece.position=tempGrabPiece.position,
+      this.#grabbedPiece.color=tempGrabPiece.color, 
+      this.#grabbedPiece.type=tempGrabPiece.type;
+
       return false;
     }
 
-    #selfCheck=()=>
+    #selfCheck=(pos)=>
     {
-        let temp2DArr= new Array(this.#Array2DOfChess);
-        console.log(temp2DArr);
+        let tempGrabPiece= new ChessPiece (this.#grabbedPiece.piece,this.#grabbedPiece.position.r,this.#grabbedPiece.position.c,this.#grabbedPiece.color, this.#grabbedPiece.type);
+        console.log(this.#grabbedPiece);
+        this.#temp2D = [];
+
+        for (var i = 0; i < 8; i++)
+            this.#temp2D[i] = this.#Array2DOfChess[i].slice();
+
+        
+        this.#turn = (this.#turn+1)%2;
+        
+        //
+        this.#Array2DOfChess[pos.r][pos.c]=this.#grabbedPiece;
+        let check=this.#checkBy();
+        this.#turn = (this.#turn+1)%2;
+
+        // 
+        for (var i = 0; i < 8; i++)
+            this.#Array2DOfChess[i] = this.#temp2D[i].slice();
+
+        
+      this.#grabbedPiece.piece=tempGrabPiece.piece,
+      this.#grabbedPiece.position=tempGrabPiece.position,
+      this.#grabbedPiece.color=tempGrabPiece.color, 
+      this.#grabbedPiece.type=tempGrabPiece.type;
+        return check;
     }
 }
 
@@ -524,5 +567,5 @@ function Cordiante(y,x)
 
 }
 
-//Starting the new Game 
+//Starting the new Game  
 newGame = new ChessBoard();

@@ -18,6 +18,8 @@ class ChessBoard {
         this.grabThePiece();
         this.#turnArr=["White", "Black"];
         this.#turn=0;
+
+        this.#selfCheck();
     }
 
     //Just to fill the board
@@ -81,8 +83,12 @@ class ChessBoard {
                              if(k==i && l==j) continue;
                             this.#Array2DOfChess[k][l].classList.remove("selectedChessPiece");
                             }
-                        
+                            
                         }
+                        
+
+                        //This is to highlight all legal moves
+                        this.#highlighting();
 
                         //Adding Class of selected Chess Piece so it is shown
                         this.#grabbedPiece.piece.classList.add("selectedChessPiece");
@@ -111,45 +117,34 @@ class ChessBoard {
                         //Emptying the Grabbed Piece Temporary Object
                         this.#grabbedPiece = new ChessPiece(null,-1,-1);
 
+                         //Rmoving the Highlighting when player placed The piece back 
+                        this.#unhighlight();
+
                     }
 
                     // IF player Moves the piece
                     else
                     {
-                        //console.log((this.#grabbedPiece), "Above");
                         if(this.#grabbedPiece.color != this.#Array2DOfChess[i][j].dataset.color)
                         {
-                            let pos= new Cordiante(i,j);
+                            //destination
+                           if(this.#legalMove(i,j))
+                           {
+                                this.#placePiece(i,j);
 
-                            if(this.#grabbedPiece.type=="Queen" && this.#queenMove(pos))
-                            {
-                               this.placePiece(i,j);
-                            }
+                                console.log(this.#checkBy());
 
-                            else if(this.#grabbedPiece.type=="Rook" && this.#rookMove(pos))
-                            {
-                               this.placePiece(i,j);
-                            }
+                                //Emptying the Temporary Grabbed Piece
+                                this.#grabbedPiece = new ChessPiece(null,-1,-1, 'none', 'none');
+                                this.#turn++;
+                                if(this.#turn>=2) this.#turn= this.#turn %2;
+                                let turnHeading= document.querySelector(".heading >span");
+                                turnHeading.textContent=this.#turnArr[this.#turn];
 
-                            else if(this.#grabbedPiece.type=="Bishop" && this.#bishopMove(pos))
-                            {
-                               this.placePiece(i,j);
-                            }
-
-                            else if(this.#grabbedPiece.type=="Knight" && this.#knightMove(pos))
-                            {
-                               this.placePiece(i,j);
-                            }
-                            else if(this.#grabbedPiece.type=="King" && this.#kingMove(pos))
-                            {
-                               this.placePiece(i,j);
-                            }
-                           
-                            else if(this.#grabbedPiece.type=="Pawn" && this.#pawnMove(pos))
-                            {                         
-                                this.placePiece(i,j);
-                            }
-                            
+                                //Rmoving the Highlighting when player moved the piece 
+                                this.#unhighlight();
+                           };
+            
                         }
                 }
                 }
@@ -162,7 +157,7 @@ class ChessBoard {
 
 
     //Utitility Functions
-    placePiece =(i,j)=>
+    #placePiece =(i,j)=>
     {
 
         // Processing over here
@@ -177,13 +172,6 @@ class ChessBoard {
         this.#Array2DOfChess[i][j].dataset.piece = this.#grabbedPiece.type;
 
         this.#isPieceGrabbed=false;
-
-        //Emptying the Temporary Grabbed Piece
-        this.#grabbedPiece = new ChessPiece(null,-1,-1, 'none', 'none');
-        this.#turn++;
-        if(this.#turn>=2) this.#turn= this.#turn %2;
-        let turnHeading= document.querySelector(".heading >span");
-        turnHeading.textContent=this.#turnArr[this.#turn];
     }
     
     //Checking Paths Diagonal horizontal vertical
@@ -339,7 +327,12 @@ class ChessBoard {
                 }
                 else
                 {
-                    return((this.#grabbedPiece.position.r-pos.r ==1 ||this.#grabbedPiece.position.r-pos.r ==2) && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='Black');
+                    if(Math.abs(this.#grabbedPiece.position.c-pos.c)==1)
+                    { 
+                        return((this.#grabbedPiece.position.r-pos.r ==1) && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='Black')
+                    }
+
+                    return false;
                 }
             }
             else
@@ -350,7 +343,12 @@ class ChessBoard {
                 }
                 else
                 {
-                    return((this.#grabbedPiece.position.r-pos.r ==1 && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='Black'));
+                    if(Math.abs(this.#grabbedPiece.position.c-pos.c)==1)
+                    { 
+                        return((this.#grabbedPiece.position.r-pos.r ==1 ) && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='Black')
+                    }
+
+                    return false;
                 }
             }
         }
@@ -365,7 +363,12 @@ class ChessBoard {
                 }
                 else
                 {
-                    return((this.#grabbedPiece.position.r-pos.r ==-1 ||this.#grabbedPiece.position.r-pos.r ==-2) && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='White');
+                    if(Math.abs(this.#grabbedPiece.position.c-pos.c)==1)
+                    { 
+                        return((this.#grabbedPiece.position.r-pos.r ==-1) && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='White')
+                    }
+
+                    return false;
                 }
             }
 
@@ -377,13 +380,130 @@ class ChessBoard {
                 }
                 else
                 {
-                    return((this.#grabbedPiece.position.r-pos.r ==-1 && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='White'));
+                    if(Math.abs(this.#grabbedPiece.position.c-pos.c)==1)
+                    { 
+                        return((this.#grabbedPiece.position.r-pos.r ==-1) && this.#Array2DOfChess[pos.r][pos.c].dataset.color=='White')
+                    }
+
+                    return false;
                 }
             }
         }
 
     }
 
+    #legalMove=(i,j)=>
+    {
+        let pos = new Cordiante(i,j);
+
+        if(this.#grabbedPiece.type=="Queen" && this.#queenMove(pos))
+        {
+           return true;
+        }
+
+        else if(this.#grabbedPiece.type=="Rook" && this.#rookMove(pos))
+        {
+            return true;
+        }
+
+        else if(this.#grabbedPiece.type=="Bishop" && this.#bishopMove(pos))
+        {
+            return true;
+        }
+
+        else if(this.#grabbedPiece.type=="Knight" && this.#knightMove(pos))
+        {
+            return true;
+        }
+        else if(this.#grabbedPiece.type=="King" && this.#kingMove(pos))
+        {
+            return true;
+        }
+       
+        else if(this.#grabbedPiece.type=="Pawn" && this.#pawnMove(pos))
+        {                         
+            return true;
+        }
+
+        return false;
+    }
+    #unhighlight=()=>
+    {
+      let source=  this.#grabbedPiece.position;
+
+      for (let l = 0; l < 8; l++) {
+        for (let m = 0; m < 8; m++) {
+            
+            if( this.#Array2DOfChess[l][m].classList.contains("highlight"))
+            {
+                this.#Array2DOfChess[l][m].classList.remove("highlight");
+            }
+            
+        }
+        
+      }
+    }
+    #highlighting=()=>
+    {
+      let source=  this.#grabbedPiece.position;
+
+      for (let l = 0; l < 8; l++) {
+        for (let m = 0; m < 8; m++) {
+            
+            if(this.#legalMove(l,m) && this.#Array2DOfChess[l][m].dataset.color != this.#turnArr[this.#turn])
+            {
+                this.#Array2DOfChess[l][m].classList.add("highlight");
+            }
+            
+        }
+        
+      }
+    }
+
+    #checkBy=()=>
+    {
+        let pos;
+
+    // finding the king
+      for (let l = 0; l < 8; l++) {
+        for (let m = 0; m < 8; m++) {
+            
+            if(this.#Array2DOfChess[l][m].dataset.color != this.#turnArr[this.#turn] && this.#Array2DOfChess[l][m].dataset.piece=="King")
+            {
+                pos=new Cordiante(l,m);
+                break;
+            }
+            
+        }
+        
+      }
+
+      console.log(this.#Array2DOfChess[pos.r][pos.c]);
+      //Checking the King IS checked or not
+      for (let l = 0; l < 8; l++) {
+        for (let m = 0; m < 8; m++) {
+            
+            this.#grabbedPiece = new ChessPiece(this.#Array2DOfChess[l][m], l ,m,this.#Array2DOfChess[l][m].dataset.color,this.#Array2DOfChess[l][m].dataset.piece);
+
+            // console.log(this.#grabbedPiece);
+            if(this.#Array2DOfChess[l][m].dataset.color==this.#turnArr[this.#turn] && this.#legalMove(pos.r, pos.c))
+            {
+                
+                return true;
+            }
+            
+        }
+        
+      }
+
+      return false;
+    }
+
+    #selfCheck=()=>
+    {
+        let temp2DArr= new Array(this.#Array2DOfChess);
+        console.log(temp2DArr);
+    }
 }
 
 

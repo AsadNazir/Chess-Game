@@ -10,6 +10,8 @@ class ChessBoard {
     #turnArr;
     #turn;
     #temp2D
+
+
     constructor() {
         this.#boxes = document.querySelectorAll(".chessBoxes");
         this.#Array2DOfChess=[];
@@ -18,7 +20,6 @@ class ChessBoard {
         this.grabThePiece();
         this.#turnArr=["White", "Black"];
         this.#turn=0;
-
     
     }
 
@@ -39,7 +40,7 @@ class ChessBoard {
 
         }
 
-        // This is to fill the 2D ARray of Chess
+        // This is to fill the 2D Array of Chess
         let tempArr=[];
         for (let i = 0; i < 8; i++) {
             
@@ -139,13 +140,46 @@ class ChessBoard {
                                
                                 //Emptying the Temporary Grabbed Piece
                                 this.#grabbedPiece = new ChessPiece(null,-1,-1, 'none', 'none');
+
+                                //Changing turns over here
                                 this.#turn++;
                                 if(this.#turn>=2) this.#turn= this.#turn %2;
+
+                                //Changing turn in header over here
                                 let turnHeading= document.querySelector(".heading >span");
                                 turnHeading.textContent=this.#turnArr[this.#turn];
 
+                                //Checking for stale mate or check mate
+                                if(!this.#isAnyMoveAvailable())
+                                {
+                                    //Changing turn for Checking checkmate
+                                    this.#turn++;
+                                    if(this.#turn>=2) this.#turn= this.#turn %2;
+
+                                    if(this.#checkBy())
+                                    {
+                                        setTimeout(function()
+                                        {
+                                            alert("Checkmate");
+                                        },300)
+                                       
+                                    }
+
+                                    //Changing turn for Checking Stale Mate
+                                    else
+                                    {
+                                        setTimeout(function()
+                                        {
+                                            alert("Stale Mate");
+                                        },300);
+                                    }
+                                }
+                                
+                                
+
                                 //Rmoving the Highlighting when player moved the piece 
                                 this.#unhighlight();
+                                
                            };
             
                         }
@@ -159,7 +193,7 @@ class ChessBoard {
     }
 
 
-    //Utitility Functions
+    //Placing th piece on the DOM
     #placePiece =(i,j)=>
     {
 
@@ -187,6 +221,8 @@ class ChessBoard {
         this.#isPieceGrabbed=false;
     }
     
+    //Utulity Functions---------------------------------------
+
     //Checking Paths Diagonal horizontal vertical
     #isHorizontalPath= (pos)=>
     {
@@ -299,7 +335,7 @@ class ChessBoard {
     }
 
 
-    // Moves over here
+    // Pieces Moves over here
     #rookMove=(pos)=>
     {
         return ((this.#isHorizontalPath(pos) && this.#isHorizontalClear(pos)) || (this.#isVerticalPath(pos) && this.#isVerticalClear(pos))); 
@@ -332,12 +368,16 @@ class ChessBoard {
         if(this.#grabbedPiece.color=="White" )
         {
             
+            //For vertical Moves only in their initial Position
             if(this.#grabbedPiece.position.r==6)
             {
                 if(this.#grabbedPiece.position.c==pos.c)
                 {
-                    return((this.#grabbedPiece.position.r-pos.r ==1 ||this.#grabbedPiece.position.r-pos.r ==2))
+                    return((this.#grabbedPiece.position.r-pos.r ==1 ||this.#grabbedPiece.position.r-pos.r ==2) && this.#Array2DOfChess[pos.r][pos.c].color=="none")
                 }
+
+                //Else is for Diogonal Kill Move in intial position
+                //Only Allowed If there is enemy Piece of immediate Diogonal
                 else
                 {
                     if(Math.abs(this.#grabbedPiece.position.c-pos.c)==1)
@@ -350,10 +390,14 @@ class ChessBoard {
             }
             else
             {
+                //vertical moving after Initial Postion
                 if(this.#grabbedPiece.position.c==pos.c)
                 {
-                    return((this.#grabbedPiece.position.r-pos.r ==1));
+                    return((this.#grabbedPiece.position.r-pos.r ==1) && this.#Array2DOfChess[pos.r][pos.c].color=="none");
                 }
+
+                //Else is for Diogonal Kill Move in position other than intial
+                //Only Allowed If there is enemy Piece of immediate Diogonal
                 else
                 {
                     if(Math.abs(this.#grabbedPiece.position.c-pos.c)==1)
@@ -369,11 +413,15 @@ class ChessBoard {
         // For Black Ones
         else
         {
+            //For vertical Moves only in their initial Position
             if(this.#grabbedPiece.position.r==1)
             {   if(this.#grabbedPiece.position.c==pos.c)
                 {
-                    return((this.#grabbedPiece.position.r-pos.r ==-1 ||this.#grabbedPiece.position.r-pos.r ==-2))
+                    return((this.#grabbedPiece.position.r-pos.r ==-1 ||this.#grabbedPiece.position.r-pos.r ==-2) && this.#Array2DOfChess[pos.r][pos.c].color=="none")
                 }
+
+                //Else is for Diogonal Kill Move in intial position
+                //Only Allowed If there is enemy Piece of immediate Diogonal
                 else
                 {
                     if(Math.abs(this.#grabbedPiece.position.c-pos.c)==1)
@@ -389,7 +437,7 @@ class ChessBoard {
             {
                 if(this.#grabbedPiece.position.c==pos.c)
                 {
-                    return((this.#grabbedPiece.position.r-pos.r ==-1));
+                    return((this.#grabbedPiece.position.r-pos.r ==-1) && this.#Array2DOfChess[pos.r][pos.c].color=="none");
                 }
                 else
                 {
@@ -405,6 +453,9 @@ class ChessBoard {
 
     }
 
+
+    //Function for Checking legal Move for any Piece held in this.#grabbedPiece
+    
     #legalMove=(i,j)=>
     {
         let pos = new Cordiante(i,j);
@@ -440,8 +491,11 @@ class ChessBoard {
 
         return false;
     }
+
+    //To un highligth the Box that were highlighted
     #unhighlight=()=>
     {
+
       let source=  this.#grabbedPiece.position;
 
       for (let l = 0; l < 8; l++) {
@@ -456,14 +510,15 @@ class ChessBoard {
         
       }
     }
+
+    //Function to highlight the legal move boxes
     #highlighting=()=>
     {
-      let source=  this.#grabbedPiece.position;
 
       for (let l = 0; l < 8; l++) {
         for (let m = 0; m < 8; m++) {
             
-            if(this.#legalMove(l,m) && this.#Array2DOfChess[l][m].color != this.#turnArr[this.#turn])
+            if(this.#legalMove(l,m) && this.#Array2DOfChess[l][m].color != this.#turnArr[this.#turn] && !this.#selfCheck(new Cordiante(l,m)))
             {
                 this.#Array2DOfChess[l][m].piece.classList.add("highlight");
             }
@@ -473,59 +528,74 @@ class ChessBoard {
       }
     }
 
+    //Fucntion to find king used in self check checkby and and to red Highlight the king 
+    #findKing=()=>
+    {
+    
+        let pos;
+        for (let l = 0; l < 8; l++) {
+            for (let m = 0; m < 8; m++) {
+                
+                if(this.#Array2DOfChess[l][m].color != this.#turnArr[this.#turn] && this.#Array2DOfChess[l][m].type=="King")
+                {
+                    pos=new Cordiante(l,m);
+                    break;
+                }
+                
+            }
+            
+        }
+
+        return pos;
+    }
+
+    //to find if Your King is in check or not and prevent the Player from takign that move
+    //Used in Self Check and Also to find Check Mate
     #checkBy=()=>
     {
        
         let pos;
         let tempGrabPiece= new ChessPiece (this.#grabbedPiece.piece,this.#grabbedPiece.position.r,this.#grabbedPiece.position.c,this.#grabbedPiece.color, this.#grabbedPiece.type);
-
-
-    // finding the king
-    console.log(this.#Array2DOfChess,"checkby");
-      for (let l = 0; l < 8; l++) {
-        for (let m = 0; m < 8; m++) {
-            
-            if(this.#Array2DOfChess[l][m].color != this.#turnArr[this.#turn] && this.#Array2DOfChess[l][m].type=="King")
-            {
-                pos=new Cordiante(l,m);
-                break;
-            }
-            
-        }
+        let flag=false;
         
-      }
-      console.log(pos,"checkby");
-      //Checking the King IS checked or not
-      for (let l = 0; l < 8; l++) {
-        for (let m = 0; m < 8; m++) {
-            
-            this.#grabbedPiece = new ChessPiece(this.#Array2DOfChess[l][m].piece, l ,m,this.#Array2DOfChess[l][m].color,this.#Array2DOfChess[l][m].type);
-
-           
-            if(this.#Array2DOfChess[l][m].color==this.#turnArr[this.#turn] && this.#legalMove(pos.r, pos.c))
-            {
+        pos=this.#findKing();
+        
+        //Checking the King IS checked or not
+        for (let l = 0; l < 8; l++) {
+            for (let m = 0; m < 8; m++) {
                 
-                return true;
+                this.#grabbedPiece = new ChessPiece(this.#Array2DOfChess[l][m].piece, l ,m,this.#Array2DOfChess[l][m].color,this.#Array2DOfChess[l][m].type);
+                
+                
+                if(this.#Array2DOfChess[l][m].color==this.#turnArr[this.#turn] && this.#legalMove(pos.r, pos.c))
+                {
+                    flag= true;
+                }
+                
             }
             
         }
         
-      }
-
-      this.#grabbedPiece.piece=tempGrabPiece.piece,
-      this.#grabbedPiece.position=tempGrabPiece.position,
-      this.#grabbedPiece.color=tempGrabPiece.color, 
-      this.#grabbedPiece.type=tempGrabPiece.type;
-
-      return false;
+       
+        this.#grabbedPiece.piece=tempGrabPiece.piece,
+        this.#grabbedPiece.position=tempGrabPiece.position,
+        this.#grabbedPiece.color=tempGrabPiece.color, 
+        this.#grabbedPiece.type=tempGrabPiece.type;
+        
+      return flag;
     }
 
+    //Self Check to find if any move of the player puts its king in Check or not and prevent it 
+    //Stops the player from taking that move if it puts its king in Check
     #selfCheck=(pos)=>
     {
 
+        console.log("Self Check called");
+        //Creating a Temporary Array to hold the Pieces
         this.#temp2D=[];
-       
+        
 
+        //Filling temp Array
         let tempArr=[];
         for (let i = 0; i < 8; i++) {
             
@@ -542,20 +612,18 @@ class ChessBoard {
 
         
          this.#turn = (this.#turn+1)%2;
-
-         console.log(this.#turnArr[this.#turn]);
-        
-        //
-        this.#Array2DOfChess[pos.r][pos.c].position=pos;
-        this.#Array2DOfChess[pos.r][pos.c].type=this.#grabbedPiece.type;
-        this.#Array2DOfChess[pos.r][pos.c].piece=this.#grabbedPiece.piece;
-        this.#Array2DOfChess[pos.r][pos.c].color=this.#grabbedPiece.color;
+        if(this.#grabbedPiece.color != this.#Array2DOfChess[pos.r][pos.c].color)
+        {
+            this.#Array2DOfChess[pos.r][pos.c].position=pos;
+            this.#Array2DOfChess[pos.r][pos.c].type=this.#grabbedPiece.type;
+            this.#Array2DOfChess[pos.r][pos.c].piece=this.#grabbedPiece.piece;
+            this.#Array2DOfChess[pos.r][pos.c].color=this.#grabbedPiece.color;
+        }
 
         this.#Array2DOfChess[this.#grabbedPiece.position.r][this.#grabbedPiece.position.c].type="none";
         //this.#Array2DOfChess[this.#grabbedPiece.position.r][this.#grabbedPiece.position.r].piece="none";
         this.#Array2DOfChess[this.#grabbedPiece.position.r][this.#grabbedPiece.position.c].color="none";
-        console.log(this.#Array2DOfChess[pos.r][pos.c]);
-        console.log(pos,"Destination\n");
+        
         let check=this.#checkBy();
 
         this.#turn = (this.#turn+1)%2;
@@ -576,11 +644,57 @@ class ChessBoard {
           tempArr=[];
         }
 
+       
         return check;
+    }
+
+    //Just to Check if any piece of the player has any legal move left or not 
+    //Used to see if Stale Mate or not
+    #isAnyMoveAvailable=()=>
+    {
+ 
+        //This is a temporary grab piece
+        let tempGrabPiece= new ChessPiece (this.#grabbedPiece.piece,this.#grabbedPiece.position.r,this.#grabbedPiece.position.c,this.#grabbedPiece.color, this.#grabbedPiece.type);
+        let flag=false;
+
+        for (let sr = 0; sr < 8; sr++) {
+            for (let sc = 0; sc < 8; sc++) {
+                for (let dr = 0; dr < 8; dr++) {
+                    for (let dc = 0; dc < 8; dc++) {
+                        
+                    //Changing the source Grabbed Piece   
+                    this.#grabbedPiece = new ChessPiece(this.#Array2DOfChess[sr][sc].piece, sr ,sc,this.#Array2DOfChess[sr][sc].color,this.#Array2DOfChess[sr][sc].type);
+
+                    //Checking by sending each piece to the each legal move box on the borad
+                    //Even if there is a single move for any single piece available it will flag true 
+                    if(this.#Array2DOfChess[sr][sc].color==this.#turnArr[this.#turn] && this.#legalMove(dr, dc) && this.#grabbedPiece.color != this.#Array2DOfChess[dr][dc].color && !this.#selfCheck(new Cordiante (dr, dc)) )
+                    {
+                        flag = true;
+                        break;
+                    }
+
+                       
+                    }
+                    
+                }
+                
+            }
+            
+        }
+
+        
+        //Setting The Grabbed  Piece back to normal Position
+        this.#grabbedPiece.piece=tempGrabPiece.piece,
+        this.#grabbedPiece.position=tempGrabPiece.position,
+        this.#grabbedPiece.color=tempGrabPiece.color, 
+        this.#grabbedPiece.type=tempGrabPiece.type;
+        
+       
+        return flag;
     }
 }
 
-// Chess Piece
+// Chess Piece constructor
 function ChessPiece(piece,x,y,color,Type)
 {
     this.piece=piece;

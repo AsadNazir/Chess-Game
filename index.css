@@ -63,19 +63,19 @@ body {
 }
 
 .lightBlue:hover {
-    background-color: #82a5fd;
+    background-color: rgb(249, 200, 51);
 }
 
 .lightBlue {
-    background-color: #B0C6FF;
+    background-color: rgb(252, 213, 95);
 }
 
 .darkBlue {
-    background-color: #3F76FF;
+    background-color: rgb(179, 134, 0);
 }
 
 .darkBlue:hover {
-    background-color: #2662fa;
+    background-color: rgb(156, 118, 1);
 }
 
 .selectedChessPiece

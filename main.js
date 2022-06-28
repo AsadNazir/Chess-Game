@@ -135,7 +135,7 @@ class ChessBoard {
                            if(this.#legalMove(i,j) && !this.#selfCheck(pos))
                            {
                                 
-                               
+                               //placing the Piece on DOM
                                 this.#placePiece(i,j);
                                
                                 //Emptying the Temporary Grabbed Piece
@@ -577,6 +577,7 @@ class ChessBoard {
         }
         
        
+        //Restoring the previous content of grabbedPiece
         this.#grabbedPiece.piece=tempGrabPiece.piece,
         this.#grabbedPiece.position=tempGrabPiece.position,
         this.#grabbedPiece.color=tempGrabPiece.color, 
@@ -610,8 +611,12 @@ class ChessBoard {
           tempArr=[];
         }
 
+        //Changing the turn before Check By
+        this.#turn = (this.#turn+1)%2;
         
-         this.#turn = (this.#turn+1)%2;
+
+        //Placing logically our piece on the destination
+        //To see if it puts our King in Check or not
         if(this.#grabbedPiece.color != this.#Array2DOfChess[pos.r][pos.c].color)
         {
             this.#Array2DOfChess[pos.r][pos.c].position=pos;
@@ -620,26 +625,32 @@ class ChessBoard {
             this.#Array2DOfChess[pos.r][pos.c].color=this.#grabbedPiece.color;
         }
 
+        //Also Emptying the source 
+        //So that our piece only exists on place on board
         this.#Array2DOfChess[this.#grabbedPiece.position.r][this.#grabbedPiece.position.c].type="none";
         //this.#Array2DOfChess[this.#grabbedPiece.position.r][this.#grabbedPiece.position.r].piece="none";
         this.#Array2DOfChess[this.#grabbedPiece.position.r][this.#grabbedPiece.position.c].color="none";
         
+        //Storing check By results
         let check=this.#checkBy();
 
+
+        //Changing back turn
         this.#turn = (this.#turn+1)%2;
 
         this.#Array2DOfChess=[];
-        // 
-         tempArr=[];
+        
+        //Filling back the original 2D array
+        tempArr=[];
         for (let i = 0; i < 8; i++) {
             
-          for (let j = 0; j < 8; j++) {
+            for (let j = 0; j < 8; j++) {
             
             let tempPiece = new ChessPiece(this.#temp2D[i][j].piece, i ,j,this.#temp2D[i][j].color,this.#temp2D[i][j].type);
             tempArr.push(tempPiece);
-          }
+            }
 
-          this.#Array2DOfChess.push(tempArr);
+        this.#Array2DOfChess.push(tempArr);
 
           tempArr=[];
         }

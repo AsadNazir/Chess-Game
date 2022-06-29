@@ -146,7 +146,7 @@ class ChessBoard {
                                 if(this.#turn>=2) this.#turn= this.#turn %2;
 
                                 //Changing turn in header over here
-                                let turnHeading= document.querySelector(".heading >span");
+                                let turnHeading= document.querySelector(".turn >span");
                                 turnHeading.textContent=this.#turnArr[this.#turn];
 
                                 //Checking for stale mate or check mate

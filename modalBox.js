@@ -22,4 +22,4 @@ function modalBoxPopUpText(message, title)
     </p>`
 }
 
-export {modalBoxPopUp, modalBoxPopUpText};
+export {modalBoxPopUp, modalBoxPopUpText ,pawnPromotionPopUp};

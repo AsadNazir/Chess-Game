@@ -164,3 +164,22 @@ body {
 .highlight {
     border: 3px solid green;
 }
+
+/* Pawn Promotion Modal box */
+.PawnPromo
+{
+    display: flex;
+    justify-content: space-evenly;
+    padding: 2rem 0;
+}
+.PawnPromo img
+{
+    display: block;
+    border: 2px solid ;
+    width: 20%;
+    padding: 0.5rem;
+}
+.PawnPromo img:hover
+{
+    cursor: pointer;
+}

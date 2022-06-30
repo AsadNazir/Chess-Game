@@ -1,5 +1,5 @@
 
-import { modalBoxPopUp } from "./modalBox.js";
+import { modalBoxPopUp as MBP, pawnPromotionPopUp as pawnPromo } from "./modalBox.js";
 
 //Chess Class
 class ChessBoard {
@@ -141,6 +141,9 @@ class ChessBoard {
                                 
                                //placing the Piece on DOM
                                 this.#placePiece(i,j);
+
+                                //Checking for pawn promotion
+                                 this.#pawnPromotion();
                                
                                 //Emptying the Temporary Grabbed Piece
                                 this.#grabbedPiece = new ChessPiece(null,-1,-1, 'none', 'none');
@@ -457,6 +460,77 @@ class ChessBoard {
 
     }
 
+    #pawnPromotion()
+    {
+        let row=0;
+        if(this.#turnArr[this.#turn]=="Black") row= 7;
+
+        for (let l = 0; l < 8; l++) {
+            if(this.#Array2DOfChess[row][l].type=="Pawn")
+            {
+                let pos = this.#Array2DOfChess[row][l];
+
+                let modalbox=document.querySelector(".modalBox");
+                modalbox.innerHTML=`  <h1>Pawn Promotion</h1>
+            <div class="PawnPromo">
+                <img src="./Images/Queen_Black.svg" alt="">
+                <img src="./Images/Bishpos_Black.svg" alt="">
+                <img src="./Images/Rook_Black.svg" alt="">
+                <img src="./Images/knight_Black.svg" alt="">
+            </div>`
+
+
+            let modalBox=document.querySelector(".modalBox");
+            let mainWebsite=document.querySelector(".mainWebsite");
+    
+            mainWebsite.style.filter=`blur(10px)`;
+            modalBox.style.top=`50%`;
+
+
+            let images=document.querySelectorAll(".modalBox img");
+
+            for (let i = 0; i < 4; i++) {
+                images[i].addEventListener("click", ()=>
+                {
+                    if(i==0)
+                    { 
+                        this.#Array2DOfChess[row][l].piece.innerHTML=`<img src="./Images/Queen_${this.#Array2DOfChess[row][l].color}.svg" alt="">`;
+                        this.#Array2DOfChess[row][l].piece.dataset.piece="Queen";
+                        this.#Array2DOfChess[row][l].type='Queen';
+                    }   
+                    else if(i==1) 
+                    {
+                        this.#Array2DOfChess[row][l].piece.innerHTML=`<img src="./Images/Bishpos_${this.#Array2DOfChess[row][l].color}.svg" alt="">`
+                        this.#Array2DOfChess[row][l].piece.dataset.piece="Bishops";
+                        this.#Array2DOfChess[row][l].type="Bishops";
+                       
+                    }
+                    else if(i==2) 
+                    {
+                        this.#Array2DOfChess[row][l].piece.innerHTML=`<img src="./Images/Rook_${this.#Array2DOfChess[row][l].color}.svg" alt="">`;
+                        this.#Array2DOfChess[row][l].piece.dataset.piece="Rook";
+                        this.#Array2DOfChess[row][l].type="Rook";
+                       
+                    }
+                    else if(i==3)
+                    {
+                        this.#Array2DOfChess[row][l].piece.innerHTML=`<img src="./Images/knight_${this.#Array2DOfChess[row][l].color}.svg" alt="">`;
+                        this.#Array2DOfChess[row][l].piece.dataset.piece="Knight";
+                        this.#Array2DOfChess[row][l].type="Knight";
+                    }
+
+                    MBP();
+                    
+                })  
+            
+            }
+
+
+   
+    }
+            
+        }
+    }
 
     //Function for Checking legal Move for any Piece held in this.#grabbedPiece
     
@@ -595,7 +669,6 @@ class ChessBoard {
     #selfCheck=(pos)=>
     {
 
-        console.log("Self Check called");
         //Creating a Temporary Array to hold the Pieces
         this.#temp2D=[];
         

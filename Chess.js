@@ -1,5 +1,5 @@
 
-import { modalBoxPopUp as MBP, pawnPromotionPopUp as pawnPromo } from "./modalBox.js";
+import { modalBoxPopUp as MBP } from "./modalBox.js";
 
 //Chess Class
 class ChessBoard {
@@ -13,7 +13,9 @@ class ChessBoard {
     #turn;
     #temp2D;
     #sound;
-
+    #oldKing
+    #iskingMoved
+    #isRookedMoved
 
     constructor() {
         this.#boxes = document.querySelectorAll(".chessBoxes");
@@ -24,7 +26,10 @@ class ChessBoard {
         this.#turnArr=["White", "Black"];
         this.#turn=0;
         this.#sound= new Audio("./chessPieceSound.mp3");
-    
+        this.#oldKing= new Cordiante(-1,-1);
+        this.#iskingMoved= [false,false];
+        this.#isRookedMoved= [[false,false],[false,false]];
+
     }
 
     //Just to fill the board
@@ -62,6 +67,8 @@ class ChessBoard {
     }
 
     //Main Grabbing the piece Logic over here
+    //Most of the private Function are Called here
+    //This is the main Function then runs the board
     grabThePiece =()=>
     {
         
@@ -143,8 +150,34 @@ class ChessBoard {
                                 this.#placePiece(i,j);
 
                                 //Checking for pawn promotion
-                                 this.#pawnPromotion();
-                               
+                                this.#pawnPromotion();
+                                
+                                //To highlight if king is in danger
+
+                                this.#kingIsInDanger();
+
+                                //Checking if King has Been Moved for castling
+                                if(this.#grabbedPiece.type=="King")
+                                {
+                                    this.#iskingMoved[this.#turn]=true;
+                                }
+
+                                //Checkign if Rooks have been moved or not for Castling
+                                if(this.#grabbedPiece.type=="Rook")
+                                {
+                                    if(this.#grabbedPiece.position.c==0 )
+                                    {
+                                        
+                                        this.#isRookedMoved[this.#turn][0]=true;
+                                       
+                                    }
+                                    else
+                                    {
+                                        this.#isRookedMoved[this.#turn][1]=true;
+                                    }
+                                }
+
+                                
                                 //Emptying the Temporary Grabbed Piece
                                 this.#grabbedPiece = new ChessPiece(null,-1,-1, 'none', 'none');
 
@@ -156,7 +189,10 @@ class ChessBoard {
                                 let turnHeading= document.querySelector(".turn >span");
                                 turnHeading.textContent=this.#turnArr[this.#turn];
 
+                               
+
                                 //Checking for stale mate or check mate
+
                                 if(!this.#isAnyMoveAvailable())
                                 {
                                     //Changing turn for Checking checkmate
@@ -184,7 +220,7 @@ class ChessBoard {
                                 
                                 
 
-                                //Rmoving the Highlighting when player moved the piece 
+                                //Removing the Highlighting when player moved the piece 
                                 this.#unhighlight();
                                 this.#sound.play();
                            };
@@ -357,18 +393,21 @@ class ChessBoard {
     {
         return (this.#rookMove(pos) || this.#bishopMove(pos));
     }
+
     #knightMove = (pos)=>
     {
         let Dr=Math.abs(this.#grabbedPiece.position.r-pos.r);
         let Dc=Math.abs(this.#grabbedPiece.position.c-pos.c);
         return ((Dr==2 && Dc==1) || (Dc==2 && Dr==1));
     }
+
     #kingMove = (pos)=>
     {
         let Dr=Math.abs(this.#grabbedPiece.position.r-pos.r);
         let Dc=Math.abs(this.#grabbedPiece.position.c-pos.c);
         return ((Dr==1 || Dr==0) && (Dc==0 || Dc==1));
     }
+
     #pawnMove =(pos)=>
     {
         // For white pawns
@@ -460,6 +499,7 @@ class ChessBoard {
 
     }
 
+    //Pawn Promotion 
     #pawnPromotion()
     {
         let row=0;
@@ -779,6 +819,22 @@ class ChessBoard {
         
        
         return flag;
+    }
+
+    #kingIsInDanger=()=>
+    {
+        if(this.#checkBy())
+        {
+            let kingPos= this.#findKing();
+            this.#Array2DOfChess[kingPos.r][kingPos.c].piece.classList.add("redBox");
+            this.#oldKing=kingPos;
+        }
+
+        else if(this.#oldKing.r!=-1 && this.#oldKing.c!=-1)
+        {
+           
+            this.#Array2DOfChess[this.#oldKing.r][this.#oldKing.c].piece.classList.remove("redBox");
+        }
     }
 }
 

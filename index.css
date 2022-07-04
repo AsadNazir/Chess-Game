@@ -164,7 +164,10 @@ body {
 .highlight {
     border: 3px solid green;
 }
-
+.redBox
+{
+    border:3px solid red;
+}
 /* Pawn Promotion Modal box */
 .PawnPromo
 {

@@ -56,8 +56,8 @@ body {
 .chessBoard {
     margin: 2rem auto;
     display: grid;
-    width: clamp(300px, 80vw, 550px);
-    height: clamp(300px, 80vw, 550px);
+    width: clamp(300px, 90vw, 550px);
+    height: clamp(300px, 90vw, 550px);
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
     border-radius: 5px;

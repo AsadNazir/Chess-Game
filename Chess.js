@@ -154,10 +154,10 @@ class ChessBoard {
 
                                 //Checking for pawn promotion
                                 this.#pawnPromotion();
-                                
-                                //To highlight if king is in danger
 
+                                //To highlight if king is in danger
                                 this.#kingIsInDanger();
+                                
 
                                 //Checking if King has Been Moved for castling
                                 if(this.#grabbedPiece.type=="King")
@@ -305,7 +305,7 @@ class ChessBoard {
 
         for(let c=chotiC+1; c<bariC; c++)
         {
-            if(this.#Array2DOfChess[pos.r][c].piece.dataset.color != 'none') return false;
+            if(this.#Array2DOfChess[pos.r][c].color != 'none') return false;
         }
 
         return true;
@@ -330,7 +330,7 @@ class ChessBoard {
 
         for(let r=chotiR+1; r<bariR; r++)
         {
-            if(this.#Array2DOfChess[r][pos.c].piece.dataset.color != 'none') return false;
+            if(this.#Array2DOfChess[r][pos.c].color != 'none') return false;
         }
 
         return true;
@@ -576,6 +576,7 @@ class ChessBoard {
     }
             
         }
+        this.#kingIsInDanger();
     }
 
     //Function for Checking legal Move for any Piece held in this.#grabbedPiece
@@ -713,9 +714,7 @@ class ChessBoard {
         this.#grabbedPiece.position=tempGrabPiece.position,
         this.#grabbedPiece.color=tempGrabPiece.color, 
         this.#grabbedPiece.type=tempGrabPiece.type;
-
-        this.#grabbedPiece= new ChessPiece(tempGrabPiece.piece,tempGrabPiece.position.r,tempGrabPiece.position.c,tempGrabPiece.color,tempGrabPiece.type);
-        
+       
       return false;
     }
 
@@ -727,20 +726,7 @@ class ChessBoard {
         //Creating a Temporary Array to hold the Pieces
         const temp2D=JSON.parse(JSON.stringify(this.#Array2DOfChess));
 
-        //Filling temp Array
-        // let tempArr=[];
-        // for (let i = 0; i < 8; i++) {
-            
-        //   for (let j = 0; j < 8; j++) {
-            
-        //     let tempPiece = new ChessPiece(this.#Array2DOfChess[i][j].piece, i ,j,this.#Array2DOfChess[i][j].color,this.#Array2DOfChess[i][j].type);
-        //     tempArr.push(tempPiece);
-        //   }
-
-        //   this.#temp2D.push(tempArr);
-
-        //   tempArr=[];
-        // }
+        
 
         //Changing the turn before Check By
         this.#turn = (this.#turn+1)%2;
@@ -784,23 +770,7 @@ class ChessBoard {
 
         }
         
-        //Filling back the original 2D array
-        // tempArr=[];
-        // for (let i = 0; i < 8; i++) {
-            
-        //     for (let j = 0; j < 8; j++) {
-            
-        //     let tempPiece = new ChessPiece(this.#temp2D[i][j].piece, i ,j,this.#temp2D[i][j].color,this.#temp2D[i][j].type);
-        //     tempArr.push(tempPiece);
-        //     }
-
-        //     this.#Array2DOfChess.push(tempArr);
-
-        //   tempArr=[];
-        // }
-        
-       
-
+        console.log(check);
         return check;
     }
 

@@ -15,7 +15,7 @@ class ChessBoard {
     #oldKing
     #iskingMoved
     #isRookedMoved
-
+    #originalBoard
     constructor() {
         this.#boxes = document.querySelectorAll(".chessBoxes");
         this.#Array2DOfChess=[];
@@ -28,7 +28,7 @@ class ChessBoard {
         this.#oldKing= new Cordiante(-1,-1);
         this.#iskingMoved= [false,false];
         this.#isRookedMoved= [[false,false],[false,false]];
-
+        this.#originalBoard=document.querySelector(".chessBoard").innerHTML;
     }
 
     //Just to fill the board
@@ -203,19 +203,20 @@ class ChessBoard {
 
                                     if(this.#checkBy())
                                     {
-                                        setTimeout(function()
+                                        setTimeout(()=>
                                         {
                                             alert("Checkmate");
+                                            this.reset();
                                         },300)
-                                       
                                     }
 
                                     //Changing turn for Checking Stale Mate
                                     else
                                     {
-                                        setTimeout(function()
+                                        setTimeout(()=>
                                         {
                                             alert("Stale Mate");
+                                            this.reset();
                                         },300);
                                     }
                                 }
@@ -1019,6 +1020,22 @@ class ChessBoard {
         this.#Array2DOfChess[dr][dc]=anotherTemp;
 
     }
+
+    reset=()=>
+    {
+        document.querySelector(".chessBoard").innerHTML=this.#originalBoard;
+        this.#boxes = document.querySelectorAll(".chessBoxes");
+        this.#Array2DOfChess=[];
+        this.FillTheBoard();
+        this.#isPieceGrabbed=false;
+        this.grabThePiece();
+        this.#turn=0;
+        this.#oldKing= new Cordiante(-1,-1);
+        this.#iskingMoved= [false,false];
+        this.#isRookedMoved= [[false,false],[false,false]];
+        this.#originalBoard=document.querySelector(".chessBoard").innerHTML;
+
+    }
 }
 
 // Chess Piece constructor
@@ -1036,7 +1053,6 @@ function Cordiante(y,x)
 {
     this.r=y;
     this.c=x;
-
 }
 
 export {ChessBoard};

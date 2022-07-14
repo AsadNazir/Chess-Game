@@ -45,9 +45,9 @@ body {
     width: 100%;
     height: 100%;
     z-index: 10;
+    -webkit-filter: blur(10px);
     filter: blur(10);
     transition-delay: 0.2s; 
-     -webkit-filter: blur(10px);
 }
 
 
@@ -56,8 +56,8 @@ body {
 .chessBoard {
     margin: 2rem auto;
     display: grid;
-    width: clamp(300px, 70vw, 550px);
-    height: clamp(300px, 70vw, 550px);
+    width: clamp(300px, 80vw, 550px);
+    height: clamp(300px, 80vw, 550px);
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
     border-radius: 5px;
@@ -126,12 +126,14 @@ body {
 /* Heading styling over here */
 
 .heading{
+    width: -moz-fit-content;
     width: fit-content;
     margin: 0.4rem auto;
     font-size: var(--font1);
     color: white;
 }
 .turn{
+    width: -moz-fit-content;
     width: fit-content;
     margin: 0.4rem auto;
     font-size: var(--font2);

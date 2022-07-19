@@ -17,17 +17,52 @@ class ChessBoard {
     #isRookedMoved
     #originalBoard
     constructor() {
+        //getting the DOM elements in the boxes array
+        //1D Array of DOM elements
         this.#boxes = document.querySelectorAll(".chessBoxes");
+
+        //2D Array of the same above Boxes Verion
+        //2D Array of Objects of Chess with all the properties
         this.#Array2DOfChess=[];
+
+        //Name says it basically makes a 2D array of chess Boxes easier to work with
+        //Also makes the board on the screen
         this.FillTheBoard();
+
+        //Logically and virtually holding the Chess Piece selected by thr user
+        //Chess piece shown in Black box stored in it as an Chess Piece Objecet
+        //See the constructor below for Chess Piece
+        //Every Detail can be accessed of the selected Piece with this data Member
+        //Intializing the Grabbed Piece by garbage
+        this.#grabbedPiece= new ChessPiece(null,-1,-1,'none', 'none');
+
+        //A varibale to know when the Piece is selected or not
         this.#isPieceGrabbed=false;
+
+        //All the Main functionality for Moving the Piece
         this.grabThePiece();
+
+        //An Array to just display whose Turn is it
         this.#turnArr=["White", "Black"];
+
+        //Turn to keep track of turns ODD and EVEN (White and Black Respectively)
         this.#turn=0;
+
+        //Just a Click Sound when a piece is placed
         this.#sound= new Audio("./chessPieceSound.mp3");
+
+        //A varibale used to store the old Kings Position as Cordinate Objects
+        //Used in kingIsIndanger Function to Remove and Add Red Box for Check
         this.#oldKing= new Cordiante(-1,-1);
+
+        //For Castling to see if king has moved or not
         this.#iskingMoved= [false,false];
+        
+        //For Castling to see if Rooks have moved or not
         this.#isRookedMoved= [[false,false],[false,false]];
+
+        //To save the state of the borad as it is first loaded to Reset it 
+        //Just for Reset Function
         this.#originalBoard=document.querySelector(".chessBoard").innerHTML;
     }
 
@@ -70,9 +105,6 @@ class ChessBoard {
     //This is the main Function then runs the board
     grabThePiece =()=>
     {
-        
-        //Intializing the Grabbed Piece by garbage
-        this.#grabbedPiece= new ChessPiece(null,-1,-1,'none', 'none');
 
         //Outer For loops for just adding event listners
         for (let i = 0; i < 8; i++) 
@@ -86,7 +118,7 @@ class ChessBoard {
                 //If the Piece is not Grabbed then only it will grab it
                    if(this.#isPieceGrabbed==false)
                       {
-                        
+                        //Check to ensure it selects the Correct color and Box
                         if(this.#Array2DOfChess[i][j].piece.dataset.color !='none' && this.#Array2DOfChess[i][j].color == this.#turnArr[this.#turn])
                         {
                             this.#grabbedPiece = new ChessPiece(this.#Array2DOfChess[i][j].piece, i ,j,this.#Array2DOfChess[i][j].color,this.#Array2DOfChess[i][j].type); 
@@ -106,14 +138,15 @@ class ChessBoard {
                         //This is to highlight all legal moves
                         this.#highlighting();
 
-                        this.#isPieceGrabbed=true;
-
-                        
+                        //Setting the Flag true over here after piece is selected
+                        this.#isPieceGrabbed=true;  
 
                     }
                     }
 
                     //If a player decides to place the piece back
+                    //It matches the DOM object of both grabbed Piece and destination
+                    //If same then enter it meaning player is unselecting th piece
                     else if(this.#grabbedPiece.piece=== this.#Array2DOfChess[i][j].piece)
                     {   
                         //Ungrabbing the Piece
@@ -135,20 +168,25 @@ class ChessBoard {
                     }
 
                     // IF player Moves the piece
+                    //The Main Logic for almost everythhing after placing and During Placing
+                    //Study it carefully
                     else
                     {
+                        //Check to ensure you dont put onto ur own piece 
                         if(this.#grabbedPiece.color != this.#Array2DOfChess[i][j].color)
                         {
                           
                             //destination
                             let pos = new Cordiante(i,j);
+
                            if(this.#legalMove(i,j) && !this.#selfCheck(pos))
                            {
-                            
+                                //Implementing casling by checking if its possible or not
                                 if(this.#isCastling(pos))
                                 {
                                     this.#castling(pos);
                                 }
+
                                //placing the Piece on DOM
                                 this.#placePiece(i,j);
 
@@ -165,21 +203,7 @@ class ChessBoard {
                                     this.#iskingMoved[this.#turn]=true;
                                 }
 
-                                //Checkign if Rooks have been moved or not for Castling
-                                if(this.#grabbedPiece.type=="Rook")
-                                {
-                                    if(this.#grabbedPiece.position.c==0 )
-                                    {
-                                        
-                                        this.#isRookedMoved[this.#turn][0]=true;
-                                       
-                                    }
-                                    else
-                                    {
-                                        this.#isRookedMoved[this.#turn][1]=true;
-                                    }
-
-                                }
+                                
 
                                 
                                 
@@ -240,12 +264,45 @@ class ChessBoard {
         }
     }
 
+    #isRookMovedCheck =(i,j)=>
+    {
+        if(this.#grabbedPiece.type=="Rook")
+        {
+            if(this.#grabbedPiece.position.c==0 || j==0)
+            {
+                
+                this.#isRookedMoved[this.#turn][0]=true;
+               
+            }
+            else
+            {
+                this.#isRookedMoved[this.#turn][1]=true;
+            }
+
+        }
+
+        else if(this.#Array2DOfChess[i][j].type=="Rook"){
+            if(j==0)
+            {
+                
+                this.#isRookedMoved[(this.#turn+1)%2][0]=true;
+               
+            }
+            else
+            {
+                this.#isRookedMoved[(this.#turn+1)%2][1]=true;
+            }
+        }
+    }
 
     //Placing th piece on the DOM
     #placePiece =(i,j)=>
     {
-
+        //Rook Check over if it is moved or killed
+        //Checkign if Rooks have been moved or not for Castling
+      this.#isRookMovedCheck(i,j);
         // Processing over here
+
         this.#Array2DOfChess[i][j].piece.innerHTML=this.#grabbedPiece.piece.innerHTML;
         this.#grabbedPiece.piece.innerHTML="";
 
@@ -270,7 +327,8 @@ class ChessBoard {
     }
     
     //Utulity Functions---------------------------------------
-
+    //These Function just check our paths to the destination are empty or clear or not
+    //Simple logics yet used everywhere
     //Checking Paths Diagonal horizontal vertical
     #isHorizontalPath= (pos)=>
     {
@@ -734,7 +792,7 @@ class ChessBoard {
 
         //Placing logically our piece on the destination
         //To see if it puts our King in Check or not
-        console.log(this.#Array2DOfChess[pos.r][pos.c],pos);
+
         if(this.#grabbedPiece.color != this.#Array2DOfChess[pos.r][pos.c].color)
         {
             this.#Array2DOfChess[pos.r][pos.c].position=pos;
@@ -770,7 +828,6 @@ class ChessBoard {
 
         }
         
-        console.log(check);
         return check;
     }
 
@@ -837,6 +894,7 @@ class ChessBoard {
         {
            
             this.#Array2DOfChess[this.#oldKing.r][this.#oldKing.c].piece.classList.remove("redBox");
+            this.#oldKing.c=this.#oldKing.r=-1;
         }
     }
 
@@ -983,6 +1041,11 @@ class ChessBoard {
         let tempEle=this.#Array2DOfChess[sr][sc].piece.innerHTML;
         this.#Array2DOfChess[sr][sc].piece.innerHTML=this.#Array2DOfChess[dr][dc].piece.innerHTML;
         this.#Array2DOfChess[dr][dc].piece.innerHTML=tempEle;
+
+        this.#Array2DOfChess[sr][sc].piece.dataset.color="none";
+        this.#Array2DOfChess[sr][sc].piece.dataset.piece="none";
+        this.#Array2DOfChess[dr][dc].piece.dataset.color=this.#turnArr[this.#turn];
+        this.#Array2DOfChess[dr][dc].piece.dataset.piece="Rook";
 
         //Swapping the whole Element
         let anotherTemp=this.#Array2DOfChess[sr][sc];
